@@ -31,7 +31,7 @@ char* readFileBytes(const char *name){
 //C++
 
 char* readFileBytes(const char *name){
-    /*
+
     std::ifstream fl(name);
     fl.seekg(0,std::ios::end);
     size_t len = fl.tellg();
@@ -39,27 +39,7 @@ char* readFileBytes(const char *name){
     fl.seekg(0,std::ios::beg);
     fl.read(ret,len);
     fl.close();
-    std::cout<<sizeof(ret)<<std::endl;
     return ret;
-    */
 
-    // open the file
-    std::ifstream file;
-    file.open(name);
-    if(!file.is_open())
-        return NULL;
-
-    // get the length of the file
-    file.seekg(0, std::ios::end);
-    size_t fileSize = file.tellg();
-    file.seekg(0, std::ios::beg);
-
-    // create a vector to hold all the bytes in the file
-    std::vector<char> data(fileSize, 0);
-    printf(&data[0]);
-
-
-    // read the file
-    file.read(&data[0], fileSize);
 
 }
