@@ -1,45 +1,78 @@
 #include <iostream>
 #include <fstream>
-#include <vector>
+#include <limits.h>
 
 
-char* readFileBytes(const char *name);
-typedef unsigned char byte;
+void getBytes(const char *name);
+void getBits(int* array, int size);
 
 int main() {
-    std::cout << "Hello, World!" << std::endl;
-    char* abc = readFileBytes("/home/kevin/Mamut.mp4");
-    std::cout<<abc<<std::endl;
+
+    getBytes("/home/kevin/enemy.png");
     return 0;
+
 }
 
-//C
+
 /*
-char* readFileBytes(const char *name){
-    FILE *fl = fopen(name,"r");
-    fseek(fl, 0, SEEK_END);
-    long len = ftell(fl);
-    char *ret = static_cast<char *>(malloc(len));
-    fseek(fl,0,SEEK_END);
-    fread(ret,1,len,fl);
-    fclose(fl);
-    return ret;
+ * @brief Genera el arreglo de bytes
+ * @param name es el path del archivo a trabajar
+ */
+void getBytes(const char *name){
+    FILE* f = fopen(name, "rb");
+    fseek(f,0,SEEK_END);
+    long lsize=0,i=0,y=0;
+    lsize = ftell(f);
+    rewind(f);
+    int x = 0;
+    int aux = 0;
+    while(i<lsize){
+        int first = fgetc(f);
+        i++;
+        x++;
+    }
+    FILE* k = fopen(name, "rb");
+    fseek(k,0,SEEK_END);
+    lsize = ftell(k);
+    rewind(k);
 
+    int array[x];
+    while(y<lsize){
+        int first = fgetc(k);
+        y++;
+        array[aux] = first;
+        aux++;
+
+        //Imprime los bytes
+        //std::cout<<(first)<<std::endl;
+    }
+
+    fclose(f);
+    fclose(k);
+    std::cout<<"El tamano de: " << name << " es de " << sizeof(array)/ sizeof(array[0]) << " bytes" <<std::endl;
+    getBits(array, sizeof(array)/ sizeof(array[0]));
 }
-*/
 
-//C++
 
-char* readFileBytes(const char *name){
-
-    std::ifstream fl(name);
-    fl.seekg(0,std::ios::end);
-    size_t len = fl.tellg();
-    char * ret = new char[len];
-    fl.seekg(0,std::ios::beg);
-    fl.read(ret,len);
-    fl.close();
-    return ret;
-
+/*
+ * @brief imprime los bits de un arreglo de bytes
+ * @param array el arreglo de bytes
+ * @param size el tamano del arreglo de bytes
+ */
+void getBits(int* array, int size){
+    int x;
+    for(x=0; x<size; x++){
+        unsigned char byte = array[x];
+        unsigned char mask = 1;
+        unsigned char bits[8];
+        int i, j = CHAR_BIT-1;
+        for ( i = 0; i < 8; i++,j--,mask = 1) {
+            bits[i] =( byte & (mask<<=j))  != NULL;
+        }
+        for (int i = 0; i < 8; i++) {
+            printf("%d", bits[i]);
+        }
+        puts("");
+    }
 
 }
