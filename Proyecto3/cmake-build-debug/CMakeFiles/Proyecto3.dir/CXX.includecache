@@ -1,0 +1,20 @@
+#IncludeRegexLine: ^[ 	]*[#%][ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+/home/gabriel/CLionProjects/Proyecto3/main.cpp
+iostream
+-
+iostream
+-
+fstream
+-
+vector
+-
+limits.h
+-
+
