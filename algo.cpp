@@ -38,6 +38,11 @@ public:
     bloque espacioDisco[3];
     int espacioTotal=4000;
 };
+class metaData{
+public:
+    vector<string> path;
+    vector<string> name;
+};
 diskNode disco1;
 diskNode disco2;
 diskNode disco3;
@@ -319,18 +324,27 @@ int main() {
     iniciarRaid();
     agregarNodo();
     init();
+    metaData meta;
     for (int i = 0; i <elementos.size(); i++)
     {
         string str = dirr + elementos.at(i);
         char *cstr = &str[0u];
         metadata.push_back(*cstr); 
         insertar(cstr);
+        meta.name.push_back(elementos.at(i));
+        cout << "Nombre: " << meta.name.at(i) << endl;
+        meta.path.push_back(dirr);
     } 
     int dato;
+    int dato1;
     cout << "Ingrese el disco que desea eliminar(0, 1, 2): ";
     cin >> dato;
-    cout << *(RAID[dato].espacioDisco[0].storage) << endl;
+   
+    //cout << *(RAID[dato].espacioDisco[0].storage) << endl;
     eliminarDisco(dato);
+    cout << "Ingrese el video a recuperar" << "(cant = " << meta.path.size() << "):";
+    cin >> dato1;
+    dato1 = 0;
     //cout<<getBitsXOR(RAID[1].espacioDisco[0].storage,lenVid/2).size()<<endl;
     //vector<int> a = getBitsXOR(RAID[1].espacioDisco[0].storage,lenVid/2);
     //vector<int> b = getBitsXOR(RAID[2].espacioDisco[0].storage,lenVid/2);
@@ -338,18 +352,18 @@ int main() {
     if(dato != 2){
         for (int i = 0; i < (lenVid/2)*8; i++)
         {
-            a.push_back(*(RAID[2].espacioDisco[0].storage+i));
+            a.push_back(*(RAID[2].espacioDisco[dato1].storage+i));
         }
         if(dato == 0){
-            generateVidIncompleto(RAID[1].espacioDisco[0].storage,lenVid/2);
-            RAID[dato].espacioDisco[0].storage = doXor(getBitsXOR(RAID[1].espacioDisco[0].storage,lenVid/2),a, getBitsXOR(RAID[1].espacioDisco[0].storage,lenVid/2).size(), a.size());
+            generateVidIncompleto(RAID[1].espacioDisco[dato1].storage,lenVid/2);
+            RAID[dato].espacioDisco[dato1].storage = doXor(getBitsXOR(RAID[1].espacioDisco[dato1].storage,lenVid/2),a, getBitsXOR(RAID[1].espacioDisco[dato1].storage,lenVid/2).size(), a.size());
         }else{
-            generateVidIncompleto(RAID[0].espacioDisco[0].storage,lenVid/2);
-            RAID[dato].espacioDisco[0].storage = doXor(getBitsXOR(RAID[0].espacioDisco[0].storage,lenVid/2),a, getBitsXOR(RAID[0].espacioDisco[0].storage,lenVid/2).size(), a.size());
+            generateVidIncompleto(RAID[0].espacioDisco[dato1].storage,lenVid/2);
+            RAID[dato].espacioDisco[dato1].storage = doXor(getBitsXOR(RAID[0].espacioDisco[dato1].storage,lenVid/2),a, getBitsXOR(RAID[0].espacioDisco[dato1].storage,lenVid/2).size(), a.size());
         }
             
     }else{
-        RAID[dato].espacioDisco[0].storage = doXor(getBitsXOR(RAID[0].espacioDisco[0].storage,lenVid/2),getBitsXOR(RAID[1].espacioDisco[0].storage,lenVid/2), getBitsXOR(RAID[1].espacioDisco[0].storage,lenVid/2).size(), getBitsXOR(RAID[0].espacioDisco[0].storage,lenVid/2).size());
+        RAID[dato].espacioDisco[dato1].storage = doXor(getBitsXOR(RAID[0].espacioDisco[dato1].storage,lenVid/2),getBitsXOR(RAID[1].espacioDisco[dato1].storage,lenVid/2), getBitsXOR(RAID[1].espacioDisco[dato1].storage,lenVid/2).size(), getBitsXOR(RAID[0].espacioDisco[dato1].storage,lenVid/2).size());
     }
     
     //cout << *(RAID[0].espacioDisco[0].storage) << endl;
@@ -361,7 +375,7 @@ int main() {
         for (int i = 0; i < 8; i++)
         {
             ostringstream ss;
-            ss << *(RAID[dato].espacioDisco[0].storage+((j*8)+i));
+            ss << *(RAID[dato].espacioDisco[dato1].storage+((j*8)+i));
             bit_string = bit_string + ss.str();
                 
         }
@@ -372,17 +386,17 @@ int main() {
         //cout << byte<< endl;
         //cout << bit_string << endl;
     }
-    RAID[dato].espacioDisco[0].storage = x;
-    cout << *(RAID[dato].espacioDisco[0].storage) << endl;
+    RAID[dato].espacioDisco[dato1].storage = x;
+    //cout << *(RAID[dato].espacioDisco[0].storage) << endl;
 
     int video[lenVid];
     for (int i = 0; i < lenVid/2; i++)
      {
-         video[i] = *RAID[0].espacioDisco[0].storage+i;
+         video[i] = *RAID[0].espacioDisco[dato1].storage+i;
      }
      for (int i = 0; i < lenVid/2; i++)
      {
-         video[lenVid/2+i] = *RAID[1].espacioDisco[0].storage+i;
+         video[lenVid/2+i] = *RAID[1].espacioDisco[dato1].storage+i;
      }  
     generateVid(video,lenVid);
     return 0;
