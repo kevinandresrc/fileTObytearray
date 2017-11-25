@@ -21,6 +21,7 @@ vector<char> metadata;
 typedef unsigned char byte;
 int lenVid;
 int lenBits;
+int posDiscos = 0;
 vector<string> elementos;
 string dirr;
 class bloque{
@@ -68,9 +69,10 @@ void insertar(const char *direccion){
     }
 }
 void iniciarRaid(){
-    RAID[0]=disco1;
-    RAID[1]=disco2;
-    RAID[2]=disco3;
+    RAID[posDiscos]=disco1;
+    posDiscos+=1;
+    RAID[posDiscos]=disco2;
+    posDiscos+=1;
 }
 void revisarInsertarRAID(int array[]){
     int contador = 0;
@@ -80,7 +82,7 @@ void revisarInsertarRAID(int array[]){
         contador=0;
         while(contador!=3){
             if(RAID[contador].isLleno==false){
-                if(RAID[contador].espacioDisco[contador2].isLleno== false){
+                if(RAID[contador].espacioDisco[contador2].isLleno== false){ 
                     RAID[contador].espacioDisco[contador2].storage = array;
                     RAID[contador].espacioDisco[contador2].isLleno=true;
                     salir=true;
@@ -203,6 +205,10 @@ void generarParidad(int* array1,int* array2, int size1){
     lenBits=y;
     cout<<"Bits: "<< y<<endl;
 }
+void agregarNodo(){
+    diskNode disco;
+    RAID[posDiscos] = disco;
+}
 void getBits(int* array, int size){
     int x;
     int y =0;
@@ -280,6 +286,11 @@ void generateVid(int* array, int size){
     fwrite(array, sizeof(char), size,file);
     fclose(file);
 }
+void generateVidIncompleto(int* array, int size){
+    FILE* file = fopen("videoIncompleto.3gp","we");
+    fwrite(array, sizeof(char), size,file);
+    fclose(file);
+}
 void eliminarDisco(int disc){
     diskNode tmp;
     
@@ -305,6 +316,8 @@ int* doXor(vector<int> a, vector<int> b, int tamanoA, int tamanoB) {
             cout << "Arreglos de diferentes tamanos, no se puede aplicar xor" << endl;
     }
 int main() {
+    iniciarRaid();
+    agregarNodo();
     init();
     for (int i = 0; i <elementos.size(); i++)
     {
@@ -315,22 +328,32 @@ int main() {
     } 
     int dato;
     cout << "Ingrese el disco que desea eliminar(0, 1, 2): ";
-    cin << dato << endl;
-
-    cout << *(RAID[0].espacioDisco[0].storage+1) << endl;
-    eliminarDisco(0);
+    cin >> dato;
+    cout << *(RAID[dato].espacioDisco[0].storage) << endl;
+    eliminarDisco(dato);
     //cout<<getBitsXOR(RAID[1].espacioDisco[0].storage,lenVid/2).size()<<endl;
     //vector<int> a = getBitsXOR(RAID[1].espacioDisco[0].storage,lenVid/2);
     //vector<int> b = getBitsXOR(RAID[2].espacioDisco[0].storage,lenVid/2);
     vector<int> a;
-    for (int i = 0; i < (lenVid/2)*8; ++i)
-    {
-        a.push_back(*(RAID[2].espacioDisco[0].storage+i));
+    if(dato != 2){
+        for (int i = 0; i < (lenVid/2)*8; i++)
+        {
+            a.push_back(*(RAID[2].espacioDisco[0].storage+i));
+        }
+        if(dato == 0){
+            generateVidIncompleto(RAID[1].espacioDisco[0].storage,lenVid/2);
+            RAID[dato].espacioDisco[0].storage = doXor(getBitsXOR(RAID[1].espacioDisco[0].storage,lenVid/2),a, getBitsXOR(RAID[1].espacioDisco[0].storage,lenVid/2).size(), a.size());
+        }else{
+            generateVidIncompleto(RAID[0].espacioDisco[0].storage,lenVid/2);
+            RAID[dato].espacioDisco[0].storage = doXor(getBitsXOR(RAID[0].espacioDisco[0].storage,lenVid/2),a, getBitsXOR(RAID[0].espacioDisco[0].storage,lenVid/2).size(), a.size());
+        }
+            
+    }else{
+        RAID[dato].espacioDisco[0].storage = doXor(getBitsXOR(RAID[0].espacioDisco[0].storage,lenVid/2),getBitsXOR(RAID[1].espacioDisco[0].storage,lenVid/2), getBitsXOR(RAID[1].espacioDisco[0].storage,lenVid/2).size(), getBitsXOR(RAID[0].espacioDisco[0].storage,lenVid/2).size());
     }
-    RAID[0].espacioDisco[0].storage = doXor(getBitsXOR(RAID[1].espacioDisco[0].storage,lenVid/2),a, getBitsXOR(RAID[1].espacioDisco[0].storage,lenVid/2).size(), a.size());
     
     //cout << *(RAID[0].espacioDisco[0].storage) << endl;
-    int size = getBitsXOR(RAID[1].espacioDisco[0].storage,lenVid/2).size()/8;
+    int size = lenVid/2;
     int x[size];
     for (int j = 0; j < size; j++)
     {
@@ -338,7 +361,7 @@ int main() {
         for (int i = 0; i < 8; i++)
         {
             ostringstream ss;
-            ss << *(RAID[0].espacioDisco[0].storage+((j*8)+i));
+            ss << *(RAID[dato].espacioDisco[0].storage+((j*8)+i));
             bit_string = bit_string + ss.str();
                 
         }
@@ -349,8 +372,9 @@ int main() {
         //cout << byte<< endl;
         //cout << bit_string << endl;
     }
-    RAID[0].espacioDisco[0].storage = x;
-    cout << *(RAID[0].espacioDisco[0].storage+1) << endl;
+    RAID[dato].espacioDisco[0].storage = x;
+    cout << *(RAID[dato].espacioDisco[0].storage) << endl;
+
     int video[lenVid];
     for (int i = 0; i < lenVid/2; i++)
      {
